@@ -3,7 +3,7 @@ comp = g++
 prog  = OPHS
 
 #Parametros default
-instance = instance.txt
+instance = Instancias/10-24-1-2.ophs
 results = results.txt
 cr = 0.3
 mr = 0.01
