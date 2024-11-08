@@ -1,7 +1,11 @@
 #include "includes.h"
 #include "globals.h"
 
-int readConfigutarion(int argc, char **argv) {
+void makeInitialPopulation(void) { //Genera la poblacion inicial
+
+};
+
+int readConfigutarion(int argc, char **argv) { //Lee la configuracion entrega al ejecutar "make exe"
 	instance_file = (char *)(argv[1]);
 	results_file = (char *)(argv[2]);
 	crossover_rate = atof(argv[3]);
@@ -23,7 +27,7 @@ int readConfigutarion(int argc, char **argv) {
 	return 1;
 }
 
-int readInstance(void) {
+int readInstance(void) { //Lee la informacion sobre la instancia del problema
 	ifstream instance(instance_file);
 	string line;
 	istringstream stream;
@@ -61,10 +65,18 @@ int readInstance(void) {
 		cout << "H: " << H << endl;
 		cout << "D: " << D << endl;
 		cout << "Tmax: " << Tmax << endl;
-		cout << "Td: ";
+		cout << "Td:" << endl;
 		for (int val : Td) {
-			cout << val << " ";
-		}
+			cout << "-" << val << endl;
+		};
+		cout << "Hoteles:" << endl;
+		for (Hotel val : hotels) {
+			cout << "-" << val << endl;
+		};
+		cout << "POIs:" << endl;
+		for (POI val : pois) {
+			cout << "-" << val << endl;
+		};
 		cout << endl;
 	};
 	return 1;
