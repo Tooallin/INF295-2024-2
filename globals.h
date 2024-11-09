@@ -15,7 +15,7 @@ int D; //Numero de Trips
 int Tmax; //Presupuesto del Tour
 vector<int> Td; //Presupuestos de los Trips
 
-vector<vector<int>> distance_matrix;
+vector<vector<float>> distance_matrix;
 
 #endif
 
@@ -45,64 +45,44 @@ ostream &operator<<(ostream &output, const Individual &individual) {
 	return output;
 };
 
-//POI
-class POI {
-friend ostream &operator<<(ostream &, const POI &);
+//Vertice
+class Vertex {
+friend ostream &operator<<(ostream &, const Vertex &);
 
 public:
+	bool flag; //Flag que indica si es un Hotel (False) o POI (True)
 	int s;
 	vector<float> coords;
 
-	POI(int s, float x, float y);
+	Vertex(int s, float x, float y, bool flag);
+	bool getFlag() const;
 	int getS() const;
 	vector<float> getCoords() const;
 };
 //Constructor
-POI::POI(int s, float x, float y) {
+Vertex::Vertex(int s, float x, float y, bool flag) {
+	this->flag = flag;
 	this->s = s;
 	this->coords = {x,y};
 };
-//Obtener S del POI
-int POI::getS() const {
+//Obtener la Flag del Vertice
+bool Vertex::getFlag() const {
+	return this->flag;
+};
+//Obtener S del Vertice
+int Vertex::getS() const {
 	return this->s;
 };
-//Obtener las coordenadas del POI
-vector<float> POI::getCoords() const {
+//Obtener las coordenadas del Vertice
+vector<float> Vertex::getCoords() const {
 	return this->coords;
 };
-//Operador para imprimir por pantalla el POI
-ostream &operator<<(ostream &output, const POI &poi) {
-	//output << "[" << &poi << "]";
-	output << "[" << poi.s << "] ";
+//Operador para imprimir por pantalla el Vertice
+ostream &operator<<(ostream &output, const Vertex &vertex) {
+	//output << "[" << &vertex << "]";
+	output << "[" << vertex.s << "] ";
 	for (int i = 0; i < 2; i++) {
-		output << poi.coords[i] << " ";
-	};
-	return output;
-};
-
-//Hotel
-class Hotel {
-friend ostream &operator<<(ostream &, const Hotel &);
-
-public:
-	vector<float> coords;
-
-	Hotel(float x, float y);
-	vector<float> getCoords() const;
-};
-//Constructor
-Hotel::Hotel(float x, float y) {
-	this->coords = {x,y};
-};
-//Obtener las coordenadas del Hotel
-vector<float> Hotel::getCoords() const {
-	return this->coords;
-};
-//Operador para imprimir por pantalla el Hotel
-ostream &operator<<(ostream &output, const Hotel &hotel) {
-	//output << "[" << &hotel << "]";
-	for (int i = 0; i < 2; i++) {
-		output << hotel.coords[i] << " ";
+		output << vertex.coords[i] << " ";
 	};
 	return output;
 };
@@ -110,7 +90,6 @@ ostream &operator<<(ostream &output, const Hotel &hotel) {
 #ifndef extern
 
 vector<Individual> population; //Poblacion
-vector<POI> pois; //POIs de la instancia
-vector<Hotel> hotels; //Hoteles de la instancia
+vector<Vertex> vertices; //Vertices de la instancia
 
 #endif

@@ -2,7 +2,32 @@
 #include "globals.h"
 
 void makeInitialPopulation(void) { //Genera la poblacion inicial
+};
 
+float calculateDistance(Vertex vertex1, Vertex vertex2) {
+	vector<float> coords1 = vertex1.getCoords();
+	vector<float> coords2 = vertex2.getCoords();
+	float distance = sqrt(pow(coords1[0] - coords2[0], 2) + pow(coords1[1] - coords2[1], 2));
+	return distance;
+};
+
+int calculateDistanceMatrix(void) {
+	for (int i = 0; i < vertices.size(); i++) {
+		vector<float> newDistances;
+		for (int j = 0; j < vertices.size(); j++) {
+			newDistances.push_back(calculateDistance(vertices[i], vertices[j]));
+		};
+		distance_matrix.push_back(newDistances);
+	};
+	if (debug) {
+		for (int i = 0; i < vertices.size(); i++) {
+			for (int j = 0; j < vertices.size(); j++) {
+				cout << distance_matrix[i][j] << " - ";
+			};
+			cout << endl;
+		};
+	};
+	return 1;
 };
 
 int readConfigutarion(int argc, char **argv) { //Lee la configuracion entrega al ejecutar "make exe"
@@ -25,7 +50,7 @@ int readConfigutarion(int argc, char **argv) { //Lee la configuracion entrega al
  		cout << endl;
 	}
 	return 1;
-}
+};
 
 int readInstance(void) { //Lee la informacion sobre la instancia del problema
 	ifstream instance(instance_file);
@@ -45,18 +70,18 @@ int readInstance(void) { //Lee la informacion sobre la instancia del problema
 	};
 	stream.clear();
 	getline(instance, line); //Linea vacia
-	while (getline(instance, line)) {
+	while (getline(instance, line)) { //Lee los Vertices
 		float x;
 		float y;
 		int s;
 		stream.str(line);
 		stream >> x >> y >> s;
 		if (s == 0) {
-			Hotel newHotel(x, y);
-			hotels.push_back(newHotel);
+			Vertex newVertex(s, x, y, false);
+			vertices.push_back(newVertex);
 		} else {
-			POI newPoi(s, x, y);
-			pois.push_back(newPoi);
+			Vertex newVertex(s, x, y, true);
+			vertices.push_back(newVertex);
 		};
 		stream.clear();
 	};
@@ -65,31 +90,34 @@ int readInstance(void) { //Lee la informacion sobre la instancia del problema
 		cout << "H: " << H << endl;
 		cout << "D: " << D << endl;
 		cout << "Tmax: " << Tmax << endl;
-		cout << "Td:" << endl;
+		cout << "Td: ";
 		for (int val : Td) {
-			cout << "-" << val << endl;
+			cout << val << " ";
 		};
-		cout << "Hoteles:" << endl;
-		for (Hotel val : hotels) {
-			cout << "-" << val << endl;
-		};
-		cout << "POIs:" << endl;
-		for (POI val : pois) {
-			cout << "-" << val << endl;
+		cout << endl;
+		for (Vertex val : vertices) {
+			if (!val.flag) {
+				cout << "Hotel: " << val << endl;
+			} else {
+				cout << "POI: " << val << endl;
+			};
 		};
 		cout << endl;
 	};
 	return 1;
-}
+};
 
 int main (int argc, char *argv[]){
-	if(!readConfigutarion(argc, argv)){
+	if (!readConfigutarion(argc, argv)) {
 		cout << "Error al leer la configuracion del problema." << endl;
 		exit(1);
-	}
-	if(!readInstance()){
+	};
+	if (!readInstance()) {
 		cout << "Error al leer la instancia del problema." << endl;
 		exit(1);
-	}
-
-}
+	};
+	if (!calculateDistanceMatrix()) {
+		cout << "Error al calcular la matriz de distancias." << endl;
+		exit(1);
+	};
+};
