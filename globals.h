@@ -27,19 +27,31 @@ friend ostream &operator<<(ostream &, const Individual &);
 public:
 	vector<int> chromosome;
 	int fitness;
+	float budget;
 
-	Individual(vector<int> chromosome, int fitness);
-	int getFitness();
+	Individual(vector<int> chromosome, int fitness, float budget);
+	int getFitness() const;
+	float getBudget() const;
 };
 //Constructor
-Individual::Individual(vector<int> chromosome, int fitness) {
+Individual::Individual(vector<int> chromosome, int fitness, float budget) {
 	this->chromosome = chromosome;
 	this->fitness = fitness;
+	this->budget = budget;
+};
+//Obtener la aptitud del Individuo
+int Individual::getFitness() const {
+	return this->fitness;
+};
+//Obtener el presupuesto del Individuo
+float Individual::getBudget() const {
+	return this->budget;
 };
 //Operador para imprimir por pantalla el Individuo
 ostream &operator<<(ostream &output, const Individual &individual) {
 	//output << "[" << &individual << "]";
-	output << "[" << individual.fitness << "]";
+	output << "[" << individual.fitness << "] ";
+	output << "[" << individual.budget << "] ";
 	for (int i = 0; i < individual.chromosome.size(); i++) {
 		output << individual.chromosome[i] << " ";
 	};

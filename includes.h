@@ -7,5 +7,6 @@
 #include <sstream>
 #include <math.h>
 #include <random>
+#include <algorithm>
 
 using namespace std;
