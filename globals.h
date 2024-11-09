@@ -15,7 +15,7 @@ int D; //Numero de Trips
 int Tmax; //Presupuesto del Tour
 vector<int> Td; //Presupuestos de los Trips
 
-vector<vector<float>> distance_matrix;
+vector<vector<float>> distance_matrix; //Matriz de distancias
 
 #endif
 

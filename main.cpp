@@ -1,17 +1,21 @@
 #include "includes.h"
 #include "globals.h"
 
-void makeInitialPopulation(void) { //Genera la poblacion inicial
+int makeInitialPopulation(void) { //Genera la poblacion inicial
+	for (int i = 0; i < population_size; i++) {
+
+	};
+	return 1;
 };
 
-float calculateDistance(Vertex vertex1, Vertex vertex2) {
+float calculateDistance(Vertex vertex1, Vertex vertex2) { //Calcula la distancia entres dos vertices
 	vector<float> coords1 = vertex1.getCoords();
 	vector<float> coords2 = vertex2.getCoords();
 	float distance = sqrt(pow(coords1[0] - coords2[0], 2) + pow(coords1[1] - coords2[1], 2));
 	return distance;
 };
 
-int calculateDistanceMatrix(void) {
+int calculateDistanceMatrix(void) { //Calcula la matriz de distancias
 	for (int i = 0; i < vertices.size(); i++) {
 		vector<float> newDistances;
 		for (int j = 0; j < vertices.size(); j++) {
@@ -112,12 +116,17 @@ int main (int argc, char *argv[]){
 		cout << "Error al leer la configuracion del problema." << endl;
 		exit(1);
 	};
+	srand48(seed);
 	if (!readInstance()) {
 		cout << "Error al leer la instancia del problema." << endl;
 		exit(1);
 	};
 	if (!calculateDistanceMatrix()) {
 		cout << "Error al calcular la matriz de distancias." << endl;
+		exit(1);
+	};
+	if (!makeInitialPopulation()) {
+		cout << "Error al generar la poblacion inicial." << endl;
 		exit(1);
 	};
 };
