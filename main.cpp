@@ -199,4 +199,7 @@ int main (int argc, char *argv[]){
 		cout << "Error al generar la poblacion inicial." << endl;
 		exit(1);
 	};
+	for (int iter = 0; iter < max_iter; iter++) {
+
+	};
 };
