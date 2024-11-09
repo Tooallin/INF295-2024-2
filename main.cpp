@@ -1,6 +1,11 @@
 #include "includes.h"
 #include "globals.h"
 
+Individual makeRandomIndividual(void) {
+	Individual individual;
+	return individual;
+};
+
 int makeInitialPopulation(void) { //Genera la poblacion inicial
 	for (int i = 0; i < population_size; i++) {
 
