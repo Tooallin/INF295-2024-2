@@ -6,5 +6,6 @@
 #include <string>
 #include <sstream>
 #include <math.h>
+#include <random>
 
 using namespace std;

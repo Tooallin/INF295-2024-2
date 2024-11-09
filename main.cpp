@@ -1,14 +1,25 @@
 #include "includes.h"
 #include "globals.h"
 
-Individual makeRandomIndividual(void) {
-	Individual individual;
-	return individual;
+void makeRandomIndividual(void) {
+	uniform_int_distribution<> hotels_distrib(2, H+1);
+	vector<int> chromosome;
+	vector<int> hotels;
+	vector<vector<int>> pois;
+	hotels.push_back(0);
+	for (int i = 0; i < D-1) {
+		hotels.push_back(hotels_distrib(generator));
+	};
+	hotels.push_back(1);
+	for (int i = 0; i < hotels.size()-1; i++) {
+		
+	}
+	return;
 };
 
 int makeInitialPopulation(void) { //Genera la poblacion inicial
 	for (int i = 0; i < population_size; i++) {
-
+		makeRandomIndividual();
 	};
 	return 1;
 };
@@ -121,7 +132,7 @@ int main (int argc, char *argv[]){
 		cout << "Error al leer la configuracion del problema." << endl;
 		exit(1);
 	};
-	srand48(seed);
+	generator.seed(seed);
 	if (!readInstance()) {
 		cout << "Error al leer la instancia del problema." << endl;
 		exit(1);
