@@ -120,7 +120,7 @@ int readConfigutarion(int argc, char **argv) { //Lee la configuracion entrega al
 		cout << "-Population Size: " << population_size << endl;
 		cout << "-Max Iter: " << max_iter << endl;
 		cout << "-Seed: " << seed << endl;
- 		cout << endl;
+		cout << endl;
 	}
 	return 1;
 };
