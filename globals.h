@@ -13,7 +13,7 @@ int N; //Numero de POIs + Hoteles
 int H; //Numero de Hoteles
 int D; //Numero de Trips
 int Tmax; //Presupuesto del Tour
-vector<int> Td; //Presupuestos de los Trips
+vector<float> Td; //Presupuestos de los Trips
 
 vector<vector<float>> distance_matrix; //Matriz de distancias
 mt19937 generator; //Generador

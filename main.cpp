@@ -16,11 +16,9 @@ vector<Individual> newPopulation(vector<Individual> crossedPopulation, vector<In
 	return newPopulation;
 };
 
-/*
-Individual findBest() { //Encuentra el individuo con mayor aptitud de la poblacion
-	return best;
+void updateBest() { //Actualiza el individuo con mayor aptitud de la poblacion
+	return;
 };
-*/
 
 Individual rouletteWheel() { //Selecciona un individuo utilizando la metrica de ruleta
 	float total_fitness = 0;
@@ -79,24 +77,27 @@ int calculateFitness(vector<int> chromosome) { //Calcula la aptitud de un indivi
 	return fitness;
 };
 
-Individual makeRandomIndividual(void) { //Crea un individuo aleatorio
-	uniform_int_distribution<> hotels_distrib(2, H+1);
-	uniform_int_distribution<> pois_distrib(H+2, N-1);
+Individual makeRandomIndividual(uniform_int_distribution<> &hotels_distrib, uniform_int_distribution<> &pois_distrib) { //Crea un individuo aleatorio
 	vector<int> chromosome;
 	vector<int> hotels;
 	vector<vector<int>> pois;
+	vector<int> used;
 	hotels.push_back(0);
-	for (int i = 0; i < D-1; i++) {
-		hotels.push_back(hotels_distrib(generator));
+	int idx = 1;
+	while (idx < D) {
+		int newHotel = hotels_distrib(generator);
+		if (distance_matrix[hotels[idx-1]][newHotel] <= Td[idx-1]) {
+			hotels.push_back(newHotel);
+			idx++;
+		};
 	};
 	hotels.push_back(1);
-	vector<int> used;
 	for (int i = 0; i < hotels.size()-1; i++) {
-		int Ti = Td[i];
+		float Ti = Td[i];
 		int lastVertex = hotels[i];
 		int nextVertex = hotels[i+1];
 		vector<int> newPois;
-		for (int j = 0; j < N; j++) {
+		for (int j = 0; j < N/D; j++) {
 			int newPoi = pois_distrib(generator);
 			auto it = find(used.begin(), used.end(), newPoi);
 			if (distance_matrix[lastVertex][newPoi] + distance_matrix[newPoi][nextVertex] <= Ti && it == used.end()) {
@@ -121,14 +122,15 @@ Individual makeRandomIndividual(void) { //Crea un individuo aleatorio
 	return newIndividual;
 };
 
-int makeInitialPopulation(void) { //Genera la poblacion inicial
+int makeInitialPopulation(uniform_int_distribution<> &hotels_distrib, uniform_int_distribution<> &pois_distrib) { //Genera la poblacion inicial
 	for (int i = 0; i < population_size; i++) {
-		Individual newIndividual = makeRandomIndividual();
+		Individual newIndividual = makeRandomIndividual(hotels_distrib, pois_distrib);
 		population.push_back(newIndividual);
 	};
 	if (debug) {
+		cout << "Poblacion Inicial:" << endl;
 		for (Individual val : population) {
-			cout << "Individuo: " << val << endl;
+			cout << "-Individuo: " << val << endl;
 		};
 	};
 	return 1;
@@ -150,6 +152,7 @@ int calculateDistanceMatrix(void) { //Calcula la matriz de distancias
 		distance_matrix.push_back(newDistances);
 	};
 	if (debug) {
+		/*
 		cout << "Matriz de Distancias:" << endl;
 		for (int i = 0; i < vertices.size(); i++) {
 			for (int j = 0; j < vertices.size(); j++) {
@@ -158,6 +161,7 @@ int calculateDistanceMatrix(void) { //Calcula la matriz de distancias
 			cout << endl;
 		};
 		cout << endl;
+		*/
 	};
 	return 1;
 };
@@ -190,33 +194,29 @@ int readInstance(void) { //Lee la informacion sobre la instancia del problema
 	ifstream instance(instance_file);
 	string line;
 	istringstream stream;
-	getline(instance, line); //Lee N H D
+	getline(instance, line);
 	stream.str(line);
 	stream >> N >> H >> D;
 	stream.clear();
-	getline(instance, line); //Lee Tmax
+	getline(instance, line);
 	Tmax = stoi(line);
-	getline(instance, line); //Lee la lista Td
+	getline(instance, line);
 	stream.str(line);
-	int temp;
+	float temp;
 	while (stream >> temp) {
 		Td.push_back(temp);
-	};
+	}
 	stream.clear();
-	getline(instance, line); //Linea vacia
-	while (getline(instance, line)) { //Lee los Vertices
-		float x;
-		float y;
+	getline(instance, line);
+	for (int i = 0; i < N+H; i++) {
+		getline(instance, line);
+		if (line.empty()) continue;
+		float x, y;
 		int s;
 		stream.str(line);
 		stream >> x >> y >> s;
-		if (s == 0) {
-			Vertex newVertex(s, x, y, false);
-			vertices.push_back(newVertex);
-		} else {
-			Vertex newVertex(s, x, y, true);
-			vertices.push_back(newVertex);
-		};
+		Vertex newVertex(s, x, y, s != 0);
+		vertices.push_back(newVertex);
 		stream.clear();
 	};
 	if (debug) {
@@ -226,7 +226,7 @@ int readInstance(void) { //Lee la informacion sobre la instancia del problema
 		cout << "-D: " << D << endl;
 		cout << "-Tmax: " << Tmax << endl;
 		cout << "-Td: ";
-		for (int val : Td) {
+		for (float val : Td) {
 			cout << val << " ";
 		};
 		cout << endl;
@@ -252,11 +252,13 @@ int main (int argc, char *argv[]){
 		cout << "Error al leer la instancia del problema." << endl;
 		exit(1);
 	};
+	uniform_int_distribution<> hotels_distrib(2, H+1);
+	uniform_int_distribution<> pois_distrib(H+2, N-1);
 	if (!calculateDistanceMatrix()) {
 		cout << "Error al calcular la matriz de distancias." << endl;
 		exit(1);
 	};
-	if (!makeInitialPopulation()) {
+	if (!makeInitialPopulation(hotels_distrib, pois_distrib)) {
 		cout << "Error al generar la poblacion inicial." << endl;
 		exit(1);
 	};
@@ -265,6 +267,6 @@ int main (int argc, char *argv[]){
 		vector<Individual> crossedPopulation = crossoverPopulation();
 		vector<Individual> mutatedPopulation = mutatePopulation();
 		population = newPopulation(crossedPopulation, mutatedPopulation);
-		//best = findBest();
+		updateBest();
 	};
 };
