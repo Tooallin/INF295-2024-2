@@ -1,6 +1,67 @@
 #include "includes.h"
 #include "globals.h"
 
+vector<Individual> crossoverPopulation() { //Realiza el cruzamiento entre individuos de la poblacion seleccionada
+	vector<Individual> crossedPopulation;
+	return crossedPopulation;
+};
+
+vector<Individual> mutatePopulation() { //Realiza mutaciones entre individuo de la poblacion cruzada
+	vector<Individual> mutatedPopulation;
+	return mutatedPopulation;
+};
+
+vector<Individual> newPopulation(vector<Individual> crossedPopulation, vector<Individual> mutatedPopulation) { //Elimina individuos hasta que el tamaño sea igual a population size
+	vector<Individual> newPopulation;
+	return newPopulation;
+};
+
+/*
+Individual findBest() { //Encuentra el individuo con mayor aptitud de la poblacion
+	return best;
+};
+*/
+
+Individual rouletteWheel() { //Selecciona un individuo utilizando la metrica de ruleta
+	float total_fitness = 0;
+	vector<float> probabilities;
+	vector<float> fitnesses;
+	for (int i = 0; i < population_size; i++) {
+		float temp_fitness = population[i].getFitness();
+		total_fitness += temp_fitness;
+		fitnesses.push_back(temp_fitness);
+	};
+	for (int i = 0; i < population_size; i++) {
+		float temp_probability = fitnesses[i]/total_fitness;
+		probabilities.push_back(temp_probability);
+	};
+	uniform_real_distribution<> prob_distrib(0.0, 1.0);
+	float rand = prob_distrib(generator);
+	for (int i = 0; i < population_size-1; i++) {
+		if (probabilities[i] >= rand) {
+			return population[i];
+		};
+	};
+	return population[population_size-1];
+};
+
+vector<Individual> selectPopulation() { //Selecciona a una parte de la poblacion para cruzar/mutar
+	vector<Individual> selectedPopulation;
+	int i = 0;
+	auto it = selectedPopulation.begin();
+	while (i < population_size / 2) {
+		Individual temp_selected = rouletteWheel();
+		it = find(selectedPopulation.begin(), selectedPopulation.end(), temp_selected);
+		if (it == selectedPopulation.end()) {
+			selectedPopulation.push_back(temp_selected);
+			i++;
+			it = find(population.begin(), population.end(), temp_selected);
+			population.erase(it);
+		};
+	};
+	return selectedPopulation;
+};
+
 float calculateBudget(vector<int> chromosome) { //Calcula el presupuesto de un individuo
 	float budget = 0;
 	for (int i = 0; i < chromosome.size()-2; i++) {
@@ -200,6 +261,10 @@ int main (int argc, char *argv[]){
 		exit(1);
 	};
 	for (int iter = 0; iter < max_iter; iter++) {
-
+		vector<Individual> selectedPopulation = selectPopulation();
+		vector<Individual> crossedPopulation = crossoverPopulation();
+		vector<Individual> mutatedPopulation = mutatePopulation();
+		population = newPopulation(crossedPopulation, mutatedPopulation);
+		//best = findBest();
 	};
 };

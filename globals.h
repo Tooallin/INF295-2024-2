@@ -77,14 +77,23 @@ public:
 	int fitness;
 	float budget;
 
+	Individual();
 	Individual(vector<int> chromosome, int fitness, float budget);
 	int getFitness() const;
 	float getBudget() const;
 	void updateFitnessAndBudget();
+	bool operator==(const Individual &rhs) const;
 	void mutateIndividual();
 	void removePoiMutation();
 	void changePoiMutation();
 	void changeHotelMutation();
+};
+//Constructor vacio
+Individual::Individual() {
+	vector<int> chromosome;
+	this->chromosome = chromosome;
+	this->fitness = 0;
+	this->budget = 0;
 };
 //Constructor
 Individual::Individual(vector<int> chromosome, int fitness, float budget) {
@@ -114,6 +123,13 @@ void Individual::updateFitnessAndBudget() {
 	this->budget = newBudget;
 	this->fitness = newFitness;
 	return;
+};
+//Compara dos individuos
+bool Individual::operator==(const Individual &rhs) const {
+	if (this->chromosome == rhs.chromosome) {
+		return true;
+	};
+	return false;
 };
 //Elige la mutacion por parte de un Individuo
 void Individual::mutateIndividual() {
@@ -208,5 +224,6 @@ ostream &operator<<(ostream &output, const Individual &individual) {
 #ifndef extern
 
 vector<Individual> population; //Poblacion
+Individual best(); //Individuo con mayor aptitud
 
 #endif
