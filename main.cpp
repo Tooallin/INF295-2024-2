@@ -6,9 +6,21 @@ vector<Individual> crossoverPopulation() { //Realiza el cruzamiento entre indivi
 	return crossedPopulation;
 };
 
-vector<Individual> mutatePopulation() { //Realiza mutaciones entre individuo de la poblacion cruzada
-	vector<Individual> mutatedPopulation;
-	return mutatedPopulation;
+void mutatePopulation(vector<Individual> &crossedPopulation, uniform_real_distribution<> &prob_distrib) { //Realiza mutaciones entre individuo de la poblacion cruzada
+	for (int i = 0; crossedPopulation.size(); i++) {
+		float rand = prob_distrib(generator);
+		if (rand <= mutation_rate) {
+			crossedPopulation[i].mutateIndividual();
+		};
+	};
+	if (debug) {
+		cout << "Poblacion Mutada:" << endl;
+		for (Individual val : crossedPopulation) {
+			cout << "-Individuo Mutado: " << val << endl;
+		};
+		cout << endl;
+	};
+	return;
 };
 
 vector<Individual> newPopulation(vector<Individual> crossedPopulation, vector<Individual> mutatedPopulation) { //Elimina individuos hasta que el tamaño sea igual a population size
@@ -20,7 +32,7 @@ void updateBest() { //Actualiza el individuo con mayor aptitud de la poblacion
 	return;
 };
 
-Individual rouletteWheel() { //Selecciona un individuo utilizando la metrica de ruleta
+Individual rouletteWheel(float rand) { //Selecciona un individuo utilizando la metrica de ruleta
 	float total_fitness = 0;
 	vector<float> probabilities;
 	vector<float> fitnesses;
@@ -29,12 +41,12 @@ Individual rouletteWheel() { //Selecciona un individuo utilizando la metrica de 
 		total_fitness += temp_fitness;
 		fitnesses.push_back(temp_fitness);
 	};
+	float sum = 0;
 	for (int i = 0; i < population_size; i++) {
-		float temp_probability = fitnesses[i]/total_fitness;
+		float temp_probability = (fitnesses[i] + sum)/total_fitness;
+		sum += fitnesses[i];
 		probabilities.push_back(temp_probability);
 	};
-	uniform_real_distribution<> prob_distrib(0.0, 1.0);
-	float rand = prob_distrib(generator);
 	for (int i = 0; i < population_size-1; i++) {
 		if (probabilities[i] >= rand) {
 			return population[i];
@@ -43,19 +55,22 @@ Individual rouletteWheel() { //Selecciona un individuo utilizando la metrica de 
 	return population[population_size-1];
 };
 
-vector<Individual> selectPopulation() { //Selecciona a una parte de la poblacion para cruzar/mutar
+vector<Individual> selectPopulation(uniform_real_distribution<> &prob_distrib) { //Selecciona a una parte de la poblacion para cruzar/mutar
 	vector<Individual> selectedPopulation;
 	int i = 0;
 	auto it = selectedPopulation.begin();
 	while (i < population_size / 2) {
-		Individual temp_selected = rouletteWheel();
-		it = find(selectedPopulation.begin(), selectedPopulation.end(), temp_selected);
-		if (it == selectedPopulation.end()) {
-			selectedPopulation.push_back(temp_selected);
-			i++;
-			it = find(population.begin(), population.end(), temp_selected);
-			population.erase(it);
+		float rand = prob_distrib(generator);
+		Individual temp_selected = rouletteWheel(rand);
+		selectedPopulation.push_back(temp_selected);
+		i++;
+	};
+	if (debug) {
+		cout << "Poblacion Seleccionada:" << endl;
+		for (Individual val : selectedPopulation) {
+			cout << "-Individuo Seleccionado: " << val << endl;
 		};
+		cout << endl;
 	};
 	return selectedPopulation;
 };
@@ -132,6 +147,7 @@ int makeInitialPopulation(uniform_int_distribution<> &hotels_distrib, uniform_in
 		for (Individual val : population) {
 			cout << "-Individuo: " << val << endl;
 		};
+		cout << endl;
 	};
 	return 1;
 };
@@ -254,6 +270,7 @@ int main (int argc, char *argv[]){
 	};
 	uniform_int_distribution<> hotels_distrib(2, H+1);
 	uniform_int_distribution<> pois_distrib(H+2, N-1);
+	uniform_real_distribution<> prob_distrib(0.0, 1.0);
 	if (!calculateDistanceMatrix()) {
 		cout << "Error al calcular la matriz de distancias." << endl;
 		exit(1);
@@ -263,10 +280,6 @@ int main (int argc, char *argv[]){
 		exit(1);
 	};
 	for (int iter = 0; iter < max_iter; iter++) {
-		vector<Individual> selectedPopulation = selectPopulation();
-		vector<Individual> crossedPopulation = crossoverPopulation();
-		vector<Individual> mutatedPopulation = mutatePopulation();
-		population = newPopulation(crossedPopulation, mutatedPopulation);
-		updateBest();
+		vector<Individual> selectedPopulation = selectPopulation(prob_distrib);
 	};
 };

@@ -8,7 +8,7 @@ results = results.txt
 cr = 0.3
 mr = 0.01
 ps = 10
-max_iter = 1e+4
+max_iter = 5
 seed = 2
 debug = true
 
