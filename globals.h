@@ -149,33 +149,24 @@ bool Individual::operator==(const Individual &rhs) const {
 
 //Operador para imprimir por pantalla el Individuo
 ostream &operator<<(ostream &output, const Individual &individual) {
-	if (individual.chromosome.empty()) {
-		return output;
-	};
-	for (size_t i = 0; i < individual.chromosome.size(); i++) {
-		if (individual.chromosome[i] <= H + 1) {
-			output << "H" << individual.chromosome[i];
+	for (int i = 0; i < individual.chromosome.size()-1; i++) {
+		if (individual.chromosome[i] <= H+1) {
+			output << "H" << individual.chromosome[i] << " ⮕ ";
 		} else {
-			int poi = individual.chromosome[i] - H + 1;
-			output << poi;
-		};
-		if (i != individual.chromosome.size() - 1) {
-			output << " ⮕ ";
+			int poi = individual.chromosome[i]-H-2;
+			output << poi << " ⮕ ";
 		};
 	};
-	output << endl;
+	output << "H" << individual.chromosome[individual.chromosome.size()-1] << endl;
 	output << individual.fitness << endl;
 	vector<float> tripsBudgets = individual.getTripsBudgets();
-	if (tripsBudgets.empty()) {
-		return output;
+	int idx = 0;
+	for (int i = 0; i < tripsBudgets.size()-1; i++) {
+		idx = i+1;
+		output << "Trip " << idx << ": " << tripsBudgets[i] << " - ";
 	};
-	for (size_t i = 0; i < tripsBudgets.size(); i++) {
-		output << "Trip " << (i + 1) << ": " << tripsBudgets[i];
-		if (i != tripsBudgets.size() - 1) {
-			output << " - ";
-		};
-	};
-	output << endl;
+	idx = tripsBudgets.size();
+	output << "Trip " << idx << ": " << tripsBudgets[tripsBudgets.size()-1] << endl;
 	return output;
 };
 

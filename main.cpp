@@ -4,7 +4,7 @@
 //Calcula el presupuesto de un individuo
 float calculateBudget(vector<int> chromosome) {
 	float budget = 0;
-	for (int i = 0; i < chromosome.size()-2; i++) {
+	for (int i = 0; i < chromosome.size()-1; i++) {
 		budget += distance_matrix[chromosome[i]][chromosome[i+1]];
 	};
 	return budget;
@@ -22,20 +22,11 @@ vector<float> calculateTripsBudgets(vector<int> chromosome) {
 			trip.push_back(chromosome[idx]);
 			idx++;
 		};
-		if (idx < chromosome.size()) {
-			trip.push_back(chromosome[idx]);
+		float Ti = 0;
+		for (int j = 0; j < trip.size() - 1; j++) {
+			Ti += distance_matrix[trip[j]][trip[j+1]];
 		};
-		if (!trip.empty()) {
-			float Ti = 0;
-			for (int j = 0; j < trip.size() - 1; j++) {
-				if (trip[j] < distance_matrix.size() && trip[j + 1] < distance_matrix[trip[j]].size()) {
-					Ti += distance_matrix[trip[j]][trip[j + 1]];
-				} else {
-					throw std::out_of_range("Índice inválido en distance_matrix");
-				};
-			};
-			tripsBudgets.push_back(Ti);
-		};
+		tripsBudgets.push_back(Ti);
 	};
 	return tripsBudgets;
 };
@@ -96,7 +87,6 @@ vector<Individual> twoPointCrossover(Individual firstFather, Individual secondFa
 	vector<Individual> newChildrens;
 	vector<int> firstFatherChromosome = firstFather.getChromosome();
 	vector<int> secondFatherChromosome = secondFather.getChromosome();
-
 	//Se encuentra el primer hotel en comun para utilizar como pivote
 	bool stop = false;
 	int pivot1;
@@ -110,7 +100,6 @@ vector<Individual> twoPointCrossover(Individual firstFather, Individual secondFa
 			stop = true;
 		};
 	};
-
 	//Se encuentra el segundo hotel en comun para utilizar como pivote
 	stop = false;
 	int pivot2;
@@ -128,7 +117,6 @@ vector<Individual> twoPointCrossover(Individual firstFather, Individual secondFa
 		swap(firstFatherit1, firstFatherit2);
 		swap(secondFatherit1, secondFatherit2);
 	}
-
 	//Se crea el primer hijo
 	vector<int> firstChildChromosome(secondFatherChromosome.begin(), secondFatherit1 + 1);
 	vector<int> firstChildSubvector1(firstFatherit1, firstFatherit2 + 1);
@@ -164,8 +152,7 @@ vector<Individual> crossoverIndividuals(Individual firstFather, Individual secon
 	if (rand == 1) {
 		vector<Individual> newChildrens = onePointCrossover(firstFather, secondFather, hotels_distrib, generator);
 	} else if (rand == 2 && D > 2) {
-		vector<Individual> newChildrens = onePointCrossover(firstFather, secondFather, hotels_distrib, generator);
-		//vector<Individual> newChildrens = twoPointCrossover(firstFather, secondFather, hotels_distrib, generator);
+		vector<Individual> newChildrens = twoPointCrossover(firstFather, secondFather, hotels_distrib, generator);
 	} else {
 	};
 	return newChildrens;
@@ -591,7 +578,7 @@ int readConfigutarion(int argc, char **argv) {
 	seed = atoi(argv[6]);
 
 	//Lee la opcion debug
-	debug = (bool)(argv[7]);
+	debug = bool(argv[7]);
 
 	//Debug
 	if (debug) {

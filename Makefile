@@ -3,19 +3,19 @@ comp = g++
 prog  = OPHS
 
 #Parametros default
-instance = Instancias/10-24-1-2.ophs
+instancia = Instancias/10-24-1-2.ophs
 cr = 0.7
 mr = 0.3
-ps = 20
+ps = 10
 max_iter = 10
 seed = 123
-debug = true
+debug = false
 
 comp:$(prog)
 
 exe:$(prog)
 	#valgrind --leak-check=full --show-reachable=yes 
-	./$(prog) $(instance) $(cr) $(mr) $(ps) $(max_iter) $(seed) $(debug)
+	./$(prog) $(instancia) $(cr) $(mr) $(ps) $(max_iter) $(seed) $(debug)
 
 $(prog): main.o
 	$(comp) main.o -o $(prog) $(flags)
