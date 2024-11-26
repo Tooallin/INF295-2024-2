@@ -8,5 +8,6 @@
 #include <math.h>
 #include <random>
 #include <algorithm>
+#include <iterator>
 
 using namespace std;

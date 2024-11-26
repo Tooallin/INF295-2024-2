@@ -21,50 +21,54 @@ mt19937 generator; //Generador
 #endif
 
 //Vertice
-class Vertex {
-friend ostream &operator<<(ostream &, const Vertex &);
+class Node {
+friend ostream &operator<<(ostream &, const Node &);
 
 public:
 	bool flag; //Flag que indica si es un Hotel (False) o POI (True)
 	int s;
 	vector<float> coords;
 
-	Vertex(int s, float x, float y, bool flag);
+	Node(int s, float x, float y, bool flag);
 	bool getFlag() const;
 	int getS() const;
 	vector<float> getCoords() const;
 };
+
 //Constructor
-Vertex::Vertex(int s, float x, float y, bool flag) {
+Node::Node(int s, float x, float y, bool flag) {
 	this->flag = flag;
 	this->s = s;
 	this->coords = {x,y};
 };
+
 //Obtener la Flag del Vertice
-bool Vertex::getFlag() const {
+bool Node::getFlag() const {
 	return this->flag;
 };
+
 //Obtener S del Vertice
-int Vertex::getS() const {
+int Node::getS() const {
 	return this->s;
 };
+
 //Obtener las coordenadas del Vertice
-vector<float> Vertex::getCoords() const {
+vector<float> Node::getCoords() const {
 	return this->coords;
 };
+
 //Operador para imprimir por pantalla el Vertice
-ostream &operator<<(ostream &output, const Vertex &vertex) {
-	//output << "[" << &vertex << "]";
-	output << "[" << vertex.s << "] ";
+ostream &operator<<(ostream &output, const Node &node) {
+	output << "[" << node.s << "] ";
 	for (int i = 0; i < 2; i++) {
-		output << vertex.coords[i] << " ";
+		output << node.coords[i] << " ";
 	};
 	return output;
 };
 
 #ifndef extern
 
-vector<Vertex> vertices; //Vertices de la instancia
+vector<Node> nodes; //Vertices de la instancia
 
 #endif
 
@@ -76,154 +80,98 @@ public:
 	vector<int> chromosome;
 	int fitness;
 	float budget;
+	vector<float> tripsBudgets;
 
 	Individual();
-	Individual(vector<int> chromosome, int fitness, float budget);
+	Individual(vector<int> chromosome, int fitness, float budget, vector<float> tripsBudgets);
+	vector<int> getChromosome() const;
 	int getFitness() const;
 	float getBudget() const;
-	void updateFitnessAndBudget();
+	vector<float> getTripsBudgets() const;
+	void updateIndividual(vector<int> newChromosome, int newFitness, float newBudget, vector<float> tripsBudgets);
 	bool operator==(const Individual &rhs) const;
-	void mutateIndividual();
-	void removePoiMutation();
-	void changePoiMutation();
-	void changeHotelMutation();
 };
+
 //Constructor vacio
 Individual::Individual() {
 	vector<int> chromosome;
+	vector<float> tripsBudgets;
 	this->chromosome = chromosome;
 	this->fitness = 0;
 	this->budget = 0;
+	this->tripsBudgets;
 };
+
 //Constructor
-Individual::Individual(vector<int> chromosome, int fitness, float budget) {
+Individual::Individual(vector<int> chromosome, int fitness, float budget, vector<float> tripsBudgets) {
 	this->chromosome = chromosome;
 	this->fitness = fitness;
 	this->budget = budget;
+	this->tripsBudgets = tripsBudgets;
 };
+
+//Obtener el cromosoma del Individuo
+vector<int> Individual::getChromosome() const {
+	return this->chromosome;
+};
+
 //Obtener la aptitud del Individuo
 int Individual::getFitness() const {
 	return this->fitness;
 };
+
 //Obtener el presupuesto del Individuo
 float Individual::getBudget() const {
 	return this->budget;
 };
+
+//Obtiene los presupuestos utilizados para cada Trip
+vector<float> Individual::getTripsBudgets() const {
+	return this->tripsBudgets;
+};
+
 //Actualiza la aptitud y el presupuesto del Individuo
-void Individual::updateFitnessAndBudget() {
-	float newBudget = 0;
-	for (int i = 0; i < chromosome.size()-2; i++) {
-		newBudget += distance_matrix[chromosome[i]][chromosome[i+1]];
-	};
-	int newFitness = 0;
-	for (int i = 0; i < chromosome.size(); i++) {
-		Vertex vertice = vertices[chromosome[i]];
-		newFitness += vertice.getS();
-	};
-	this->budget = newBudget;
+void Individual::updateIndividual(vector<int> newChromosome, int newFitness, float newBudget, vector<float> newTripsBudgets) {
+	this->chromosome = newChromosome;
 	this->fitness = newFitness;
+	this->budget = newBudget;
+	this->tripsBudgets = newTripsBudgets;
 	return;
 };
-//Compara dos individuos
+
+//Compara si es que dos individuos son iguales
 bool Individual::operator==(const Individual &rhs) const {
 	if (this->chromosome == rhs.chromosome) {
 		return true;
 	};
 	return false;
 };
-//Elige la mutacion por parte de un Individuo
-void Individual::mutateIndividual() {
-	uniform_int_distribution<> mutation_distrib(1, 3);
-	int rand = mutation_distrib(generator);
-	if (rand == 1) {
-		removePoiMutation();
-	} else if (rand == 2) {
-		changePoiMutation();
-	} else {
-		changeHotelMutation();
-	};
-	return;
-};
-//Remueve un POI del cromosoma
-void Individual::removePoiMutation() {
-	uniform_int_distribution<> vertex_distrib(0, chromosome.size()-1);
-	bool valid = false;
-	int poi = 0;
-	auto it = chromosome.begin();
-	while (!valid) {
-		poi = chromosome[vertex_distrib(generator)];
-		it = find(chromosome.begin(), chromosome.end(), poi);
-		if (poi >= H+2) {
-			valid = true;
-		};
-	};
-	chromosome.erase(it);
-	return;
-};
-//Intercambia un POI dentro del tour por uno no incluido que disminuya el presupuesto
-void Individual::changePoiMutation() {
-	uniform_int_distribution<> pois_distrib(H+2, N-1);
-	bool valid = false;
-	int newPoi = 0;
-	auto it = chromosome.begin();
-	while (!valid) {
-		newPoi = pois_distrib(generator);
-		it = find(chromosome.begin(), chromosome.end(), newPoi);
-		if (it == chromosome.end()) {
-			valid = true;
-		};
-	};
-	for (int i = 1; i < chromosome.size()-1; i++) {
-		int vertex = chromosome[i];
-		if (vertex >= H+2) {
-			if (distance_matrix[i-1][newPoi] + distance_matrix[newPoi][i+1] < distance_matrix[i-1][vertex] + distance_matrix[vertex][i+1]) {
-				chromosome[i] = newPoi;
-				updateFitnessAndBudget();
-				break;
-			};
-		};
-	};
-	return;
-};
-//Intercambia un Hotel dentro del tour por uno no incluido que disminuya el presupuesto
-void Individual::changeHotelMutation() {
-	uniform_int_distribution<> hotel_distrib(2, H+1);
-	bool valid = false;
-	int newHotel = 0;
-	auto it = chromosome.begin();
-	while (!valid) {
-		newHotel = hotel_distrib(generator);
-		it = find(chromosome.begin(), chromosome.end(), newHotel);
-		if (it == chromosome.end()) {
-			valid = true;
-		};
-	};
-	for (int i = 1; i < chromosome.size()-1; i++) {
-		int vertex = chromosome[i];
-		if (vertex >= 2 && vertex <= H+1) {
-			if (distance_matrix[i-1][newHotel] + distance_matrix[newHotel][i+1] < distance_matrix[i-1][vertex] + distance_matrix[vertex][i+1]) {
-				chromosome[i] = newHotel;
-				updateFitnessAndBudget();
-				break;
-			};
-		};
-	};
-	return;
-};
+
 //Operador para imprimir por pantalla el Individuo
 ostream &operator<<(ostream &output, const Individual &individual) {
-	//output << "[" << &individual << "]";
-	output << "[" << individual.fitness << "] ";
-	output << "[" << individual.budget << "] ";
-	for (int i = 0; i < individual.chromosome.size(); i++) {
-		output << individual.chromosome[i] << " ";
+	for (int i = 0; i < individual.chromosome.size()-2; i++) {
+		if (individual.chromosome[i] <= H+1) {
+			output << "H" << individual.chromosome[i] << " ⮕ ";
+		} else {
+			int poi = individual.chromosome[i]-H+1;
+			output << poi << " ⮕ ";
+		};
 	};
+	output << "H" << individual.chromosome[individual.chromosome.size()-1] << endl;
+	output << individual.fitness << endl;
+	vector<float> tripsBudgets = individual.getTripsBudgets();
+	int idx = 0;
+	for (int i = 0; i < tripsBudgets.size()-1; i++) {
+		idx = i+1;
+		output << "Trip " << idx << ": " << tripsBudgets[i] << " - ";
+	};
+	idx = tripsBudgets.size();
+	output << "Trip " << idx << ": " << tripsBudgets[tripsBudgets.size()-1] << endl;
 	return output;
 };
 
 #ifndef extern
 
 vector<Individual> population; //Poblacion
-Individual best(); //Individuo con mayor aptitud
 
 #endif
