@@ -51,36 +51,59 @@ vector<Individual> onePointCrossover(Individual firstFather, Individual secondFa
 	int pivot;
 	auto it1 = firstFatherChromosome.end();
 	auto it2 = secondFatherChromosome.end();
-	while (!stop) {
+	int i = 0;
+	while (!stop && i < max_iter) {
 		pivot = hotels_distrib(generator);
 		it1 = find(firstFatherChromosome.begin(), firstFatherChromosome.end(), pivot);
 		it2 = find(secondFatherChromosome.begin(), secondFatherChromosome.end(), pivot);
 		if (it1 != firstFatherChromosome.end() && it2 != secondFatherChromosome.end() && pivot > 1) {
 			stop = true;
 		};
+		i++;
 	};
 
-	//Se crea el primer hijo
-	vector<int> firstChildChromosome(secondFatherChromosome.begin(), next(it2));
-	vector<int> firstSubvector(it1, firstFatherChromosome.end());
-	firstChildChromosome.insert(firstChildChromosome.end(), firstSubvector.begin(), firstSubvector.end());
-	int firstChildFitness = calculateFitness(firstChildChromosome);
-	float firstChildBudget = calculateBudget(firstChildChromosome);
-	vector<float> firstChildTripsBudgets = calculateTripsBudgets(firstChildChromosome);
-	Individual firstChild(firstChildChromosome, firstChildFitness, firstChildBudget, firstChildTripsBudgets);
-	newChildrens.push_back(firstChild);
+	//Se maneja el caso donde no haya coincidencia
+	if (i >= max_iter) {
+		//Se crea el primer hijo
+		vector<int> firstChildChromosome = firstFatherChromosome;
+		int firstChildFitness = calculateFitness(firstChildChromosome);
+		float firstChildBudget = calculateBudget(firstChildChromosome);
+		vector<float> firstChildTripsBudgets = calculateTripsBudgets(firstChildChromosome);
+		Individual firstChild(firstChildChromosome, firstChildFitness, firstChildBudget, firstChildTripsBudgets);
+		newChildrens.push_back(firstChild);
 
-	//Se crea el segundo hijo
-	vector<int> secondChildChromosome(firstFatherChromosome.begin(), next(it1));
-	vector<int> secondSubvector(it2, secondFatherChromosome.end());
-	secondChildChromosome.insert(secondChildChromosome.end(), secondSubvector.begin(), secondSubvector.end());
-	int secondChildFitness = calculateFitness(secondChildChromosome);
-	float secondChildBudget = calculateBudget(secondChildChromosome);
-	vector<float> secondChildTripsBudgets = calculateTripsBudgets(secondChildChromosome);
-	Individual secondChild(secondChildChromosome, secondChildFitness, secondChildBudget, secondChildTripsBudgets);
-	newChildrens.push_back(secondChild);
+		//Se crea el segundo hijo
+		vector<int> secondChildChromosome = secondFatherChromosome;
+		int secondChildFitness = calculateFitness(secondChildChromosome);
+		float secondChildBudget = calculateBudget(secondChildChromosome);
+		vector<float> secondChildTripsBudgets = calculateTripsBudgets(secondChildChromosome);
+		Individual secondChild(secondChildChromosome, secondChildFitness, secondChildBudget, secondChildTripsBudgets);
+		newChildrens.push_back(secondChild);
 
-	return newChildrens;
+		return newChildrens;
+	} else {
+		//Se crea el primer hijo
+		vector<int> firstChildChromosome(secondFatherChromosome.begin(), next(it2));
+		vector<int> firstSubvector(it1, firstFatherChromosome.end());
+		firstChildChromosome.insert(firstChildChromosome.end(), firstSubvector.begin(), firstSubvector.end());
+		int firstChildFitness = calculateFitness(firstChildChromosome);
+		float firstChildBudget = calculateBudget(firstChildChromosome);
+		vector<float> firstChildTripsBudgets = calculateTripsBudgets(firstChildChromosome);
+		Individual firstChild(firstChildChromosome, firstChildFitness, firstChildBudget, firstChildTripsBudgets);
+		newChildrens.push_back(firstChild);
+
+		//Se crea el segundo hijo
+		vector<int> secondChildChromosome(firstFatherChromosome.begin(), next(it1));
+		vector<int> secondSubvector(it2, secondFatherChromosome.end());
+		secondChildChromosome.insert(secondChildChromosome.end(), secondSubvector.begin(), secondSubvector.end());
+		int secondChildFitness = calculateFitness(secondChildChromosome);
+		float secondChildBudget = calculateBudget(secondChildChromosome);
+		vector<float> secondChildTripsBudgets = calculateTripsBudgets(secondChildChromosome);
+		Individual secondChild(secondChildChromosome, secondChildFitness, secondChildBudget, secondChildTripsBudgets);
+		newChildrens.push_back(secondChild);
+
+		return newChildrens;
+	};
 };
 
 vector<Individual> twoPointCrossover(Individual firstFather, Individual secondFather, uniform_int_distribution<> &hotels_distrib, mt19937 &generator) {
@@ -100,6 +123,8 @@ vector<Individual> twoPointCrossover(Individual firstFather, Individual secondFa
 			stop = true;
 		};
 	};
+	cout << "Primer pivot (" << pivot1 << ")" << endl;
+
 	//Se encuentra el segundo hotel en comun para utilizar como pivote
 	stop = false;
 	int pivot2;
@@ -113,13 +138,17 @@ vector<Individual> twoPointCrossover(Individual firstFather, Individual secondFa
 			stop = true;
 		};
 	};
+	cout << "Segundo pivot (" << pivot2 << ")" << endl;
+
 	if (firstFatherit1 > firstFatherit2 || secondFatherit1 > secondFatherit2) {
 		swap(firstFatherit1, firstFatherit2);
 		swap(secondFatherit1, secondFatherit2);
-	}
+	};
+
 	//Se crea el primer hijo
-	vector<int> firstChildChromosome(secondFatherChromosome.begin(), secondFatherit1 + 1);
-	vector<int> firstChildSubvector1(firstFatherit1, firstFatherit2 + 1);
+	cout << "Se crea el primer hijo" << endl;
+	vector<int> firstChildChromosome(secondFatherChromosome.begin(), next(secondFatherit1));
+	vector<int> firstChildSubvector1(firstFatherit1, next(firstFatherit2));
 	firstChildChromosome.insert(firstChildChromosome.end(), firstChildSubvector1.begin(), firstChildSubvector1.end());
 	vector<int> firstChildSubvector2(secondFatherit2, secondFatherChromosome.end());
 	firstChildChromosome.insert(firstChildChromosome.end(), firstChildSubvector2.begin(), firstChildSubvector2.end());
@@ -130,8 +159,9 @@ vector<Individual> twoPointCrossover(Individual firstFather, Individual secondFa
 	newChildrens.push_back(firstChild);
 
 	//Se crea el segundo hijo
-	vector<int> secondChildChromosome(firstFatherChromosome.begin(), firstFatherit1 + 1);
-	vector<int> secondChildSubvector1(secondFatherit1, secondFatherit2 + 1);
+	cout << "Se crea el segundo hijo" << endl;
+	vector<int> secondChildChromosome(firstFatherChromosome.begin(), next(firstFatherit1));
+	vector<int> secondChildSubvector1(secondFatherit1, next(secondFatherit2));
 	secondChildChromosome.insert(secondChildChromosome.end(), secondChildSubvector1.begin(), secondChildSubvector1.end());
 	vector<int> secondChildSubvector2(firstFatherit2, firstFatherChromosome.end());
 	secondChildChromosome.insert(secondChildChromosome.end(), secondChildSubvector2.begin(), secondChildSubvector2.end());
@@ -152,7 +182,9 @@ vector<Individual> crossoverIndividuals(Individual firstFather, Individual secon
 	if (rand == 1) {
 		vector<Individual> newChildrens = onePointCrossover(firstFather, secondFather, hotels_distrib, generator);
 	} else if (rand == 2 && D > 2) {
-		vector<Individual> newChildrens = twoPointCrossover(firstFather, secondFather, hotels_distrib, generator);
+		vector<Individual> newChildrens = onePointCrossover(firstFather, secondFather, hotels_distrib, generator);
+		//cout << "Se hace twoPoints" << endl;
+		//vector<Individual> newChildrens = twoPointCrossover(firstFather, secondFather, hotels_distrib, generator);
 	} else {
 	};
 	return newChildrens;
@@ -216,7 +248,7 @@ vector<int> addPoiMutation(Individual individual, uniform_int_distribution<> &po
 		for (int j = 0; j < trip.size()-1; j++) {
 			Ti = Ti - distance_matrix[trip[j]][trip[j+1]];
 		};
-		for (int j = 0; j < trip.size(); j++) {
+		for (int j = 0; j < trip.size()-1; j++) {
 			if (distance_matrix[trip[j]][addedPoi] + distance_matrix[addedPoi][trip[j+1]] <= Ti) {
 				it = find(newChromosome.begin(), newChromosome.end(), trip[j]);
 				newChromosome.insert(it+1, addedPoi);
@@ -466,6 +498,7 @@ Individual makeRandomIndividual(uniform_int_distribution<> &hotels_distrib, unif
 				if (distance_matrix[hotels[i]][newPoi] + distance_matrix[newPoi][hotels[i+1]] <= Ti && it == usedPois.end()) {
 					tripsPois[i].push_back(newPoi);
 					usedPois.push_back(newPoi);
+					break;
 				};
 			};
 		};
@@ -578,7 +611,7 @@ int readConfigutarion(int argc, char **argv) {
 	seed = atoi(argv[6]);
 
 	//Lee la opcion debug
-	debug = bool(argv[7]);
+	debug = atoi(argv[7]);
 
 	//Debug
 	if (debug) {
@@ -700,15 +733,10 @@ int main (int argc, char *argv[]){
 
 	//Empieza la ejecucion del algoritmo
 	for (int iter = 0; iter < max_iter; iter++) {
-		//Se cae al seleccionar la poblacion
 		vector<Individual> selectedPopulation = selectPopulation(population, prob_distrib, generator);
-		//Se cae al cruzar
 		vector<Individual> crossedPopulation = crossoverPopulation(population, prob_distrib, hotels_distrib, crossover_distrib, generator);
-		//Se cae al mutar
 		vector<Individual> mutatedPopulation = mutatePopulation(selectedPopulation, prob_distrib, pois_distrib, hotels_distrib, mutation_distrib, generator);
-		//Se cae al unir la poblacion
 		updatePopulation(population, mutatedPopulation);
-		//Se cae al actualizar el mejor
 		updateBest(best, population);
 	};
 	cout << best << endl;

@@ -4,12 +4,12 @@ prog  = OPHS
 
 #Parametros default
 instancia = Instancias/10-24-1-2.ophs
-cr = 0.7
-mr = 0.3
-ps = 10
-max_iter = 10
+cr = 0.3
+mr = 0.1
+ps = 50
+max_iter = 50
 seed = 123
-debug = false
+debug = 0
 
 comp:$(prog)
 
