@@ -25,15 +25,17 @@ vector<float> calculateTripsBudgets(vector<int> chromosome) {
 		if (idx < chromosome.size()) {
 			trip.push_back(chromosome[idx]);
 		};
-		float Ti = 0;
-		for (int j = 0; j < trip.size() - 1; j++) {
-			if (trip[j] < distance_matrix.size() && trip[j + 1] < distance_matrix[trip[j]].size()) {
-				Ti += distance_matrix[trip[j]][trip[j + 1]];
-			} else {
-				throw out_of_range("Índice inválido en distance_matrix");
-			}
+		if (!trip.empty()) {
+			float Ti = 0;
+			for (int j = 0; j < trip.size() - 1; j++) {
+				if (trip[j] < distance_matrix.size() && trip[j + 1] < distance_matrix[trip[j]].size()) {
+					Ti += distance_matrix[trip[j]][trip[j + 1]];
+				} else {
+					throw std::out_of_range("Índice inválido en distance_matrix");
+				};
+			};
+			tripsBudgets.push_back(Ti);
 		};
-		tripsBudgets.push_back(Ti);
 	};
 	return tripsBudgets;
 };
@@ -189,7 +191,6 @@ vector<Individual> crossoverPopulation(vector<Individual> selectedPopulation, un
 	};
 
 	//Debug
-	/*
 	if (debug) {
 		cout << "Poblacion Cruzada:" << endl;
 		for (Individual val : crossedPopulation) {
@@ -197,7 +198,6 @@ vector<Individual> crossoverPopulation(vector<Individual> selectedPopulation, un
 		};
 		cout << endl;
 	};
-	*/
 	return crossedPopulation;
 };
 
@@ -340,7 +340,6 @@ vector<Individual> mutatePopulation(vector<Individual> crossedPopulation, unifor
 	};
 
 	//Debug
-	/*
 	if (debug) {
 		cout << "Poblacion Mutada:" << endl;
 		for (Individual val : mutatedPopulation) {
@@ -348,7 +347,6 @@ vector<Individual> mutatePopulation(vector<Individual> crossedPopulation, unifor
 		};
 		cout << endl;
 	};
-	*/
 	return mutatedPopulation;
 };
 
@@ -418,7 +416,6 @@ vector<Individual> selectPopulation(vector<Individual> population, uniform_real_
 	};
 
 	//Debug
-	/*
 	if (debug) {
 		cout << "Poblacion Seleccionada:" << endl;
 		for (Individual val : selectedPopulation) {
@@ -426,7 +423,6 @@ vector<Individual> selectPopulation(vector<Individual> population, uniform_real_
 		};
 		cout << endl;
 	};
-	*/
 	return selectedPopulation;
 };
 
@@ -531,7 +527,6 @@ int makeInitialPopulation(uniform_int_distribution<> &hotels_distrib, uniform_in
 	};
 
 	//Debug
-	/*
 	if (debug) {
 		cout << "Poblacion Inicial:" << endl;
 		for (Individual val : population) {
@@ -539,7 +534,6 @@ int makeInitialPopulation(uniform_int_distribution<> &hotels_distrib, uniform_in
 		};
 		cout << endl;
 	};
-	*/
 	return 1;
 };
 
@@ -563,7 +557,6 @@ int calculateDistanceMatrix(void) {
 	};
 
 	//Debug
-	/*
 	if (debug) {
 		cout << "Matriz de Distancias:" << endl;
 		for (int i = 0; i < nodes.size(); i++) {
@@ -574,7 +567,6 @@ int calculateDistanceMatrix(void) {
 		};
 		cout << endl;
 	};
-	*/
 	return 1;
 };
 
@@ -602,7 +594,6 @@ int readConfigutarion(int argc, char **argv) {
 	debug = (bool)(argv[7]);
 
 	//Debug
-	/*
 	if (debug) {
 		cout << endl;
 		cout << "Parametros de Ejecucion:" << endl;
@@ -614,7 +605,6 @@ int readConfigutarion(int argc, char **argv) {
 		cout << "-Seed: " << seed << endl;
 		cout << endl;
 	}
-	*/
 	return 1;
 };
 
@@ -659,7 +649,6 @@ int readInstance(void) {
 	};
 
 	//Debug
-	/*
 	if (debug) {
 		cout << "Parametros de la Instancia:" << endl;
 		cout << "-N: " << N << endl;
@@ -680,7 +669,6 @@ int readInstance(void) {
 		};
 		cout << endl;
 	};
-	*/
 	return 1;
 };
 
@@ -725,10 +713,15 @@ int main (int argc, char *argv[]){
 
 	//Empieza la ejecucion del algoritmo
 	for (int iter = 0; iter < max_iter; iter++) {
+		//Se cae al seleccionar la poblacion
 		vector<Individual> selectedPopulation = selectPopulation(population, prob_distrib, generator);
+		//Se cae al cruzar
 		vector<Individual> crossedPopulation = crossoverPopulation(population, prob_distrib, hotels_distrib, crossover_distrib, generator);
+		//Se cae al mutar
 		vector<Individual> mutatedPopulation = mutatePopulation(selectedPopulation, prob_distrib, pois_distrib, hotels_distrib, mutation_distrib, generator);
+		//Se cae al unir la poblacion
 		updatePopulation(population, mutatedPopulation);
+		//Se cae al actualizar el mejor
 		updateBest(best, population);
 	};
 	cout << best << endl;
